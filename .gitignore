@@ -1,0 +1,11 @@
+cache
+db.sqlite3
+db.sqlite3-journal
+*.pyc
+htmlcov
+.coverage
+**.swp
+.pyenv
+.idea
+
+test_list.txt

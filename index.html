@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Secure JavaScript Password Input</title>
+
+    <link href="vendor/spectre.min.css" rel="stylesheet" />
+    <link href="secure-password-input.css" rel="stylesheet" />
+  </head>
+  <body class="container grid-md">
+    <h1>Secure JavaScript Password Input</h1>
+
+    <div class="form-group">
+      <label class="form-label"
+             for="native-input">Native (&ldquo;insecure&rdquo;) password input</label>
+      <input class="form-input"
+             id="native-input"
+             type="password" />
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"
+           for="secure-input">Secure password input
+      </div>
+      <div id="demo-input"></div>
+    </div>
+
+    <script src="secure-password-input.js" type="application/javascript"></script>
+    <script src="demo.js" type="application/javascript"></script>
+  </body>
+</html>
