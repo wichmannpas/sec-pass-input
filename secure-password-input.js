@@ -19,7 +19,7 @@
     'ä', 'Ä', 'ö', 'Ö', 'ü', 'Ü', 'ß',
     // TODO: more special characters
 
-    ' ', '*', '/', '\\', '(', ')', '[', ']', '#', '@', '!', '.', ',', ';', ':', "'", '"', '%', '$', '~', '+', '-',
+    ' ', '*', '/', '\\', '(', ')', '[', ']', '#', '@', '!', '.', ',', ';', ':', "'", '"', '%', '$', '~', '+', '-', '`',
   ]
   const HANDLED_KEYS = CONTROL_KEYS + ALLOWED_KEYS
 
@@ -65,7 +65,7 @@
       if (
         (event.ctrlKey && !(event.key === 'ArrowLeft' || event.key === 'ArrowRight'
           || event.key === 'Backspace' || event.key === 'Delete'))
-        || event.altKey) {
+        || event.altKey || event.metaKey) {
         return
       }
       event.preventDefault()
