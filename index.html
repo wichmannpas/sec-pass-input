@@ -26,6 +26,23 @@
       <div id="demo-input"></div>
     </div>
 
+    <hr />
+    <p>
+      The following displaying of the passwords in this demo is <em>not secure</em>!
+      Except for the obvious reasons of showing the password, it also encodes the password as a primitive string
+      variable (that cannot explicitly be cleared/overridden) and adds the plaintext password in full to the
+      DOM.
+    </p>
+    <p>
+      <strong>Value of the native password input:</strong>&nbsp;
+      <code id="native-password-display"></code>
+    </p>
+
+    <p>
+      <strong>Value of the secure password input:</strong>&nbsp;
+      <code id="secure-password-display"></code>
+    </p>
+
     <script src="secure-password-input.js" type="application/javascript"></script>
     <script src="demo.js" type="application/javascript"></script>
   </body>
