@@ -1,5 +1,6 @@
 // TODO: allow to provide a max length
 // TODO: allow to disable dot display
+// TODO: allow enter callback
 
 (function () {
   const CONTROL_KEYS = [
@@ -31,9 +32,23 @@
 
   window.createSecurePasswordInput = (input) => {
     const passwordData = {
-      value: new Uint8Array(0),
+      value: new Uint8Array(0)
     }
     let cursorPosition = -1
+
+    passwordData.setValue = value => {
+      overwriteArray(passwordData.value)
+      passwordData.value = value
+      cursorPosition = passwordData.value.byteLength - 1
+      updateDotDisplay()
+    }
+
+    passwordData.clear = () => {
+      overwriteArray(passwordData.value)
+      passwordData.value = new Uint8Array(0)
+      cursorPosition = -1
+      updateDotDisplay()
+    }
 
     // make element focusable so we can listen to events
     input.tabIndex = 0
@@ -58,6 +73,11 @@
 
     // listen to keys
     input.addEventListener('keydown', event => {
+      if (typeof input.onenter === 'function' && event.key === 'Enter') {
+        input.onenter(passwordData)
+        return
+      }
+
       if (HANDLED_KEYS.indexOf(event.key) === -1) {
         return
       }

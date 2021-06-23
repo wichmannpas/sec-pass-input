@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Secure JavaScript Password Input: Crypto Demo</title>
+
+    <link href="vendor/spectre.min.css" rel="stylesheet" />
+    <link href="secure-password-input.css" rel="stylesheet" />
+  </head>
+  <body class="container grid-md">
+    <h1>Secure JavaScript Password Input: Crypto Demo</h1>
+
+    <p>
+      This demo shows the derivation of a CryptoKey from a password using a secure input, clearing the
+      plaintext password from memory immediately afterwards.
+    </p>
+
+    <div class="form-group">
+      <div class="form-label"
+           for="password-input">Password
+      </div>
+      <div id="password-input"></div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"
+           for="salt-input">Salt
+      </div>
+      <div id="salt-input"></div>
+    </div>
+
+    <button class="btn btn-primary"
+            id="derive">
+      Derive Key From Password
+    </button>
+
+    <hr />
+    <p>
+      <strong>Derived CryptoKey (display for demonstration purposes only!)</strong>
+      <br />
+      <code id="key-display"></code>
+    </p>
+    <p>
+      <strong>Salt, base64-encoded (display for demonstration purposes only!)</strong>
+      <br />
+      <code id="salt-display"></code>
+    </p>
+
+    <script src="secure-password-input.js" type="application/javascript"></script>
+    <script src="crypto-demo.js" type="application/javascript"></script>
+  </body>
+</html>
