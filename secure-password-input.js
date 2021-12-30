@@ -24,6 +24,12 @@
     ';', ':', "'", '"', '%', '$', '~', '+', '-', '`', '|',
   ]
   const HANDLED_KEYS = CONTROL_KEYS + ALLOWED_KEYS
+  const ONSCREEN_KEYBOARD_KEYS = [
+    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'],
+    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+  ]
 
   function overwriteArray (array) {
     for (let i = 0; i < array.byteLength; i++) {
@@ -56,18 +62,55 @@
 
     input.classList.add('secure-password-input')
 
+    const cursor = document.createElement('span')
+    cursor.classList.add('cursor')
+    cursor.innerText = 'l'
+
+    // create on-screen keyboard
+    const keyboard = document.createElement('div')
+    keyboard.classList.add('onscreen-keyboard', 'hidden')
+    input.parentNode.insertBefore(keyboard, input.nextSibling)
+    // add keys
+    ONSCREEN_KEYBOARD_KEYS.forEach(keyboardRow => {
+      keyboardRow.forEach(key => {
+        const keyElem = document.createElement('div')
+        keyElem.textContent = key
+        keyElem.classList.add('key')
+        keyElem.addEventListener('click', event => {
+          event.preventDefault()
+          input.focus()
+          input.dispatchEvent(new KeyboardEvent('keydown', {key}))
+        })
+        keyboard.appendChild(keyElem)
+      })
+      const lineBreak = document.createElement('div')
+      keyboard.appendChild(lineBreak)
+    })
+
+    const keyboardToggle = document.createElement('span')
+    keyboardToggle.classList.add('onscreen-keyboard-toggle')
+    keyboardToggle.addEventListener('click', () => {
+      if (keyboard.classList.contains('hidden')) {
+        keyboard.classList.remove('hidden')
+        keyboardToggle.classList.add('active')
+      } else {
+        keyboard.classList.add('hidden')
+        keyboardToggle.classList.remove('active')
+      }
+    })
+
     function updateDotDisplay () {
-      let display = ''
+      input.innerHTML = ''
       if (cursorPosition === -1) {
-        display += '<span class="cursor">l</span>'
+        input.appendChild(cursor)
       }
       for (let i = 0; i < passwordData.value.byteLength; i++) {
-        display += '&bull;'
+        input.innerHTML += '&bull;'
         if (cursorPosition === i) {
-          display += '<span class="cursor">l</span>'
+          input.appendChild(cursor)
         }
       }
-      input.innerHTML = display
+      input.appendChild(keyboardToggle)
     }
 
     updateDotDisplay()
@@ -200,4 +243,4 @@
 
     return passwordData
   }
-})();
+})()
