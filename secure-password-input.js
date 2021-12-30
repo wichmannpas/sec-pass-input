@@ -69,6 +69,9 @@
     input.tabIndex = 0
 
     input.classList.add('secure-password-input')
+    const inputDots = document.createElement('div')
+    inputDots.classList.add('input-dots')
+    input.appendChild(inputDots)
 
     const cursor = document.createElement('span')
     cursor.classList.add('cursor')
@@ -135,19 +138,26 @@
         keyboardToggle.classList.remove('active')
       }
     })
+    input.appendChild(keyboardToggle)
 
     function updateDotDisplay () {
-      input.innerHTML = ''
+      inputDots.innerHTML = ''
       if (cursorPosition === -1) {
-        input.appendChild(cursor)
+        inputDots.appendChild(cursor)
       }
       for (let i = 0; i < passwordData.value.byteLength; i++) {
-        input.innerHTML += '&bull;'
+        inputDots.innerHTML += '&bull;'
         if (cursorPosition === i) {
-          input.appendChild(cursor)
+          inputDots.appendChild(cursor)
         }
       }
-      input.appendChild(keyboardToggle)
+
+      // scroll display to cursor
+      if (inputDots.offsetWidth === inputDots.scrollWidth)
+        return
+      const charCount = passwordData.value.byteLength + 1
+      const charWidth = inputDots.scrollWidth / charCount
+      inputDots.scrollTo(charWidth * cursorPosition, 0)
     }
 
     updateDotDisplay()
