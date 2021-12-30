@@ -84,7 +84,7 @@
         keyboardRow.forEach(key => {
           const keyElem = document.createElement('div')
           if (key === 'Backspace') {
-            keyElem.textContent = '🡄'
+            keyElem.textContent = '⬅'
             keyElem.classList.add('backspace-key')
           } else if (key === 'Shift') {
             keyElem.textContent = '⇧'
