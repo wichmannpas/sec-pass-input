@@ -20,15 +20,23 @@
     'ä', 'Ä', 'ö', 'Ö', 'ü', 'Ü', 'ß',
     // TODO: more special characters
 
-    ' ', '*', '^', '&', '/', '\\', '(', ')', '{', '}', '<', '>', '[', ']', '#', '@', '!', '.', ',',
-    ';', ':', "'", '"', '%', '$', '~', '+', '-', '`', '|',
+    ' ', '*', '^', '&', '/', '\\', '(', ')', '{', '}', '<', '>', '[', ']', '#', '@', '!', '?', '.', ',',
+    ';', ':', "'", '"', '%', '$', '~', '+', '-', '_', '`', '|',
   ]
   const HANDLED_KEYS = CONTROL_KEYS + ALLOWED_KEYS
   const ONSCREEN_KEYBOARD_KEYS = [
-    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
-    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'],
-    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+    [
+      ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace'],
+      ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'],
+      ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", '\\'],
+      ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'ArrowLeft', 'ArrowRight'],
+    ],
+    [
+      ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 'Backspace'],
+      ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}'],
+      ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '|'],
+      ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 'ArrowLeft', 'ArrowRight'],
+    ]
   ]
 
   function overwriteArray (array) {
@@ -71,20 +79,49 @@
     keyboard.classList.add('onscreen-keyboard', 'hidden')
     input.parentNode.insertBefore(keyboard, input.nextSibling)
     // add keys
-    ONSCREEN_KEYBOARD_KEYS.forEach(keyboardRow => {
-      keyboardRow.forEach(key => {
-        const keyElem = document.createElement('div')
-        keyElem.textContent = key
-        keyElem.classList.add('key')
-        keyElem.addEventListener('click', event => {
-          event.preventDefault()
-          input.focus()
-          input.dispatchEvent(new KeyboardEvent('keydown', {key}))
+    ONSCREEN_KEYBOARD_KEYS.forEach((keyboardInstance, keyboardInstanceNumber) => {
+      keyboardInstance.forEach(keyboardRow => {
+        keyboardRow.forEach(key => {
+          const keyElem = document.createElement('div')
+          if (key === 'Backspace') {
+            keyElem.textContent = '🡄'
+            keyElem.classList.add('backspace-key')
+          } else if (key === 'Shift') {
+            keyElem.textContent = '⇧'
+            keyElem.classList.add('shift-key')
+          } else if (key === 'ArrowLeft') {
+            keyElem.textContent = '←'
+            keyElem.classList.add('arrow-key')
+          } else if (key === 'ArrowRight') {
+            keyElem.textContent = '→'
+            keyElem.classList.add('arrow-key')
+          } else {
+            keyElem.textContent = key
+          }
+          keyElem.classList.add('key')
+          if (keyboardInstanceNumber === 0) {
+            keyElem.classList.add('no-shift')
+          } else {
+            keyElem.classList.add('shift')
+          }
+          keyElem.addEventListener('click', event => {
+            event.preventDefault()
+            input.focus()
+            if (key === 'Shift') {
+              if (keyboard.classList.contains('shift-active')) {
+                keyboard.classList.remove('shift-active')
+              } else {
+                keyboard.classList.add('shift-active')
+              }
+            } else {
+              input.dispatchEvent(new KeyboardEvent('keydown', {key}))
+            }
+          })
+          keyboard.appendChild(keyElem)
         })
-        keyboard.appendChild(keyElem)
+        const lineBreak = document.createElement('div')
+        keyboard.appendChild(lineBreak)
       })
-      const lineBreak = document.createElement('div')
-      keyboard.appendChild(lineBreak)
     })
 
     const keyboardToggle = document.createElement('span')
