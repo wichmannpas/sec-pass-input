@@ -15,6 +15,16 @@
     demoDisplay.innerText = byteArrayToString(passwordData.value)
   }
 
+  const demoInputOnscreen = document.getElementById('demo-input-onscreen')
+  const demoOnscreen = window.createSecurePasswordInput(demoInputOnscreen, {
+    enforceOnscreenKeyboard: true
+  })
+
+  const demoDisplayOnscreen = document.getElementById('secure-password-onscreen-display')
+  demoInputOnscreen.oninput = passwordData => {
+    demoDisplayOnscreen.innerText = byteArrayToString(passwordData.value)
+  }
+
   const nativeInput = document.getElementById('native-input')
   const nativeDisplay = document.getElementById('native-password-display')
   nativeInput.onchange = event => {

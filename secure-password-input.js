@@ -45,11 +45,12 @@
     }
   }
 
-  window.createSecurePasswordInput = (input) => {
+  window.createSecurePasswordInput = (input, options = {}) => {
     const passwordData = {
       value: new Uint8Array(0)
     }
     let cursorPosition = -1
+    const enforceOnscreenKeyboard = options.enforceOnscreenKeyboard === true
 
     passwordData.setValue = value => {
       overwriteArray(passwordData.value)
@@ -117,7 +118,9 @@
                 keyboard.classList.add('shift-active')
               }
             } else {
-              input.dispatchEvent(new KeyboardEvent('keydown', {key}))
+              const event = new KeyboardEvent('keydown', {key})
+              event.fromOnscreenKeyboard = true
+              input.dispatchEvent(event)
             }
           })
           keyboard.appendChild(keyElem)
@@ -129,15 +132,20 @@
 
     const keyboardToggle = document.createElement('span')
     keyboardToggle.classList.add('onscreen-keyboard-toggle')
-    keyboardToggle.addEventListener('click', () => {
-      if (keyboard.classList.contains('hidden')) {
-        keyboard.classList.remove('hidden')
-        keyboardToggle.classList.add('active')
-      } else {
-        keyboard.classList.add('hidden')
-        keyboardToggle.classList.remove('active')
-      }
-    })
+    if (enforceOnscreenKeyboard) {
+      keyboard.classList.remove('hidden')
+      keyboardToggle.classList.add('active')
+    } else {
+      keyboardToggle.addEventListener('click', () => {
+        if (keyboard.classList.contains('hidden')) {
+          keyboard.classList.remove('hidden')
+          keyboardToggle.classList.add('active')
+        } else {
+          keyboard.classList.add('hidden')
+          keyboardToggle.classList.remove('active')
+        }
+      })
+    }
     input.appendChild(keyboardToggle)
 
     function updateDotDisplay () {
@@ -164,6 +172,11 @@
 
     // listen to keys
     input.addEventListener('keydown', event => {
+      if (enforceOnscreenKeyboard && event.fromOnscreenKeyboard !== true) {
+        // ignore regular key events if onscreen keyboard is enforced
+        return
+      }
+
       if (typeof input.onenter === 'function' && event.key === 'Enter') {
         input.onenter(passwordData)
         return
