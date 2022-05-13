@@ -51,6 +51,7 @@
     }
     let cursorPosition = -1
     const enforceOnscreenKeyboard = options.enforceOnscreenKeyboard === true
+    const displayDots = options.displayDots === undefined ? true : options.displayDots
 
     passwordData.setValue = value => {
       overwriteArray(passwordData.value)
@@ -77,6 +78,7 @@
     const cursor = document.createElement('span')
     cursor.classList.add('cursor')
     cursor.innerText = 'l'
+    inputDots.appendChild(cursor)
 
     // create on-screen keyboard
     const keyboard = document.createElement('div')
@@ -149,6 +151,9 @@
     input.appendChild(keyboardToggle)
 
     function updateDotDisplay () {
+      if (!displayDots)
+        return
+
       inputDots.innerHTML = ''
       if (cursorPosition === -1) {
         inputDots.appendChild(cursor)

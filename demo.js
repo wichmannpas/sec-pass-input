@@ -25,6 +25,15 @@
     demoDisplayOnscreen.innerText = byteArrayToString(passwordData.value)
   }
 
+  const demoInputNoDots = document.getElementById('demo-input-nodots')
+  const demoNoDots = window.createSecurePasswordInput(demoInputNoDots, {
+    displayDots: false
+  })
+  const demoDisplayNoDots = document.getElementById('secure-password-nodots-display')
+  demoInputNoDots.oninput = passwordData => {
+    demoDisplayNoDots.innerText = byteArrayToString(passwordData.value)
+  }
+
   const nativeInput = document.getElementById('native-input')
   const nativeDisplay = document.getElementById('native-password-display')
   nativeInput.onchange = event => {
