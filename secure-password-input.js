@@ -1,8 +1,7 @@
 // TODO: allow to provide a max length
-// TODO: allow to disable dot display
-// TODO: allow enter callback
 
 (function () {
+  const DEFAULT_ARRAY_SIZE = 100
   const CONTROL_KEYS = [
     'Backspace', 'Delete',
     'ArrowLeft', 'ArrowRight',
@@ -30,12 +29,14 @@
       ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'],
       ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", '\\'],
       ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'ArrowLeft', 'ArrowRight'],
+      [' '],
     ],
     [
       ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 'Backspace'],
       ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}'],
       ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '|'],
       ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 'ArrowLeft', 'ArrowRight'],
+      [' '],
     ]
   ]
 
@@ -47,22 +48,23 @@
 
   window.createSecurePasswordInput = (input, options = {}) => {
     const passwordData = {
-      value: new Uint8Array(0)
+      value: new Uint8Array(DEFAULT_ARRAY_SIZE),
+      length: 0
     }
     let cursorPosition = -1
     const enforceOnscreenKeyboard = options.enforceOnscreenKeyboard === true
     const displayDots = options.displayDots === undefined ? true : options.displayDots
 
     passwordData.setValue = value => {
+      // TODO
       overwriteArray(passwordData.value)
       passwordData.value = value
-      cursorPosition = passwordData.value.byteLength - 1
+      cursorPosition = passwordData.length - 1
       updateDotDisplay()
     }
 
     passwordData.clear = () => {
       overwriteArray(passwordData.value)
-      passwordData.value = new Uint8Array(0)
       cursorPosition = -1
       updateDotDisplay()
     }
@@ -161,7 +163,7 @@
       if (cursorPosition === -1) {
         inputDots.appendChild(cursor)
       }
-      for (let i = 0; i < passwordData.value.byteLength; i++) {
+      for (let i = 0; i < passwordData.length; i++) {
         inputDots.innerHTML += '&bull;'
         if (cursorPosition === i) {
           inputDots.appendChild(cursor)
@@ -171,7 +173,7 @@
       // scroll display to cursor
       if (inputDots.offsetWidth === inputDots.scrollWidth)
         return
-      const charCount = passwordData.value.byteLength + 1
+      const charCount = passwordData.length + 1
       const charWidth = inputDots.scrollWidth / charCount
       inputDots.scrollTo(charWidth * cursorPosition, 0)
     }
@@ -202,20 +204,22 @@
       event.preventDefault()
 
       if (ALLOWED_KEYS.indexOf(event.key) >= 0) {
-        // update value
-        const newValue = new Uint8Array(passwordData.value.byteLength + 1)
-        const beforeCursor = new Uint8Array(passwordData.value.buffer.slice(0, cursorPosition + 1))
-        const afterCursor = new Uint8Array(passwordData.value.buffer.slice(cursorPosition + 1, passwordData.value.byteLength))
-        newValue.set(beforeCursor)
-        newValue.set(afterCursor, cursorPosition + 2)
-        newValue[cursorPosition + 1] = event.key.charCodeAt(0)
+        passwordData.length++
+        if (passwordData.length > passwordData.value.byteLength) {
+          const newValue = new Uint8Array(passwordData.value.byteLength * 2)
+          for (let i = 0; i < passwordData.value.byteLength; i++) {
+            newValue[i] = passwordData.value[i]
+          }
+          overwriteArray(passwordData.value)
+          delete passwordData.value
+          passwordData.value = newValue
+        }
+        // shift all characters right of the insert position one place to the right
+        for (let i = passwordData.length; i > cursorPosition; i--) {
+          passwordData.value[i] = passwordData.value[i - 1]
+        }
+        passwordData.value[cursorPosition + 1] = event.key.charCodeAt(0)
 
-        // overwrite old and temporary value with zeros
-        overwriteArray(passwordData.value)
-        overwriteArray(beforeCursor)
-        overwriteArray(afterCursor)
-
-        passwordData.value = newValue
         cursorPosition++
       } else if (event.key === 'Home' || (event.ctrlKey && event.key === 'ArrowLeft')) {
         cursorPosition = -1
@@ -225,9 +229,9 @@
         }
         cursorPosition--
       } else if (event.key === 'End' || (event.ctrlKey && event.key === 'ArrowRight')) {
-        cursorPosition = passwordData.value.byteLength - 1
+        cursorPosition = passwordData.length - 1
       } else if (event.key === 'ArrowRight') {
-        if (cursorPosition >= passwordData.value.byteLength - 1) {
+        if (cursorPosition >= passwordData.length - 1) {
           return
         }
         cursorPosition++
@@ -236,62 +240,43 @@
           return
         }
 
-        // update value
-        let newLength = passwordData.value.byteLength - 1
+        // shift one (no ctrl) or all (ctrl) characters right of the cursor to the left
+        let shift = 1
+        let start = cursorPosition
         if (event.ctrlKey) {
-          newLength = passwordData.value.byteLength - cursorPosition - 1
+          shift = cursorPosition + 1
+          start = 0
         }
-        const newValue = new Uint8Array(newLength)
-        const beforeCursor = new Uint8Array(passwordData.value.buffer.slice(0, cursorPosition))
-        const afterCursor = new Uint8Array(passwordData.value.buffer.slice(cursorPosition + 1, passwordData.value.byteLength))
-        if (event.ctrlKey) {
-          newValue.set(afterCursor)
-        } else {
-          newValue.set(beforeCursor)
-          newValue.set(afterCursor, cursorPosition)
+        let newLength = passwordData.length - shift
+        for (let i = start; i < passwordData.length; i++) {
+          passwordData.value[i] = passwordData.value[i + shift]
         }
 
-        // overwrite old and temporary value with zeros
-        overwriteArray(passwordData.value)
-        overwriteArray(beforeCursor)
-        overwriteArray(afterCursor)
-
-        passwordData.value = newValue
+        passwordData.length = newLength
         if (event.ctrlKey) {
           cursorPosition = -1
         } else {
           cursorPosition--
         }
       } else if (event.key === 'Delete') {
-        if (cursorPosition >= passwordData.value.byteLength - 1) {
+        if (cursorPosition >= passwordData.length - 1) {
           return
         }
 
-        // update value
-        let newLength = passwordData.value.byteLength - 1
         if (event.ctrlKey) {
-          newLength = cursorPosition + 1
-        }
-        const newValue = new Uint8Array(newLength)
-        const beforeCursor = new Uint8Array(passwordData.value.buffer.slice(0, cursorPosition + 1))
-        const afterCursor = new Uint8Array(passwordData.value.buffer.slice(cursorPosition + 2, passwordData.value.byteLength))
-        if (event.ctrlKey) {
-          newValue.set(beforeCursor)
-        } else {
-          if (cursorPosition >= 0) {
-            newValue.set(beforeCursor)
-            newValue.set(afterCursor, cursorPosition + 1)
-          } else {
-            newValue.set(afterCursor)
+          // overwrite all characters right of the cursor
+          for (let i = cursorPosition + 1; i < passwordData.length; i++) {
+            passwordData.value[i] = 0
           }
+          passwordData.length = cursorPosition + 1
+        } else {
+          // shift all characters right of the cursor one to the left
+          passwordData.length--
+          for (let i = cursorPosition + 1; i < passwordData.length; i++) {
+            passwordData.value[i] = passwordData.value[i + 1]
+          }
+          passwordData.value[passwordData.length] = 0
         }
-
-        // overwrite old and temporary value with zeros
-        overwriteArray(passwordData.value)
-        overwriteArray(beforeCursor)
-        overwriteArray(afterCursor)
-
-        passwordData.value = newValue
       } else {
         console.error('Unhandled event/key:')
         console.error(event)

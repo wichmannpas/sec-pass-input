@@ -2,6 +2,10 @@
   function byteArrayToString (array) {
     let result = ''
     for (let i = 0; i < array.byteLength; i++) {
+      if (array[i] === 0) {
+        // stop at nullbyte
+        break
+      }
       result += String.fromCharCode(array[i])
     }
     return result
