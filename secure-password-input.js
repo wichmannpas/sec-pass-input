@@ -101,6 +101,8 @@
           } else if (key === 'ArrowRight') {
             keyElem.textContent = '→'
             keyElem.classList.add('arrow-key')
+          } else if (key === ' ') {
+            keyElem.classList.add('space-key')
           } else {
             keyElem.textContent = key
           }
@@ -120,9 +122,10 @@
                 keyboard.classList.add('shift-active')
               }
             } else {
-              const event = new KeyboardEvent('keydown', {key})
-              event.fromOnscreenKeyboard = true
-              input.dispatchEvent(event)
+              handleInput({
+                key: key,
+                preventDefault: () => 0,
+              }, true)
             }
           })
           keyboard.appendChild(keyElem)
@@ -175,9 +178,8 @@
 
     updateDotDisplay()
 
-    // listen to keys
-    input.addEventListener('keydown', event => {
-      if (enforceOnscreenKeyboard && event.fromOnscreenKeyboard !== true) {
+    function handleInput (event, fromOnscreenKeyboard = false) {
+      if (enforceOnscreenKeyboard && fromOnscreenKeyboard !== true) {
         // ignore regular key events if onscreen keyboard is enforced
         return
       }
@@ -304,7 +306,10 @@
       }
 
       updateDotDisplay()
-    })
+    }
+
+    // listen to keys
+    input.addEventListener('keydown', handleInput)
 
     return passwordData
   }
