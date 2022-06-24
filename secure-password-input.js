@@ -94,6 +94,7 @@
 
     passwordData.clear = () => {
       overwriteArray(passwordData.value)
+      passwordData.length = 0
       cursorPosition = -1
       updateDotDisplay()
     }
