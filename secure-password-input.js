@@ -55,12 +55,41 @@
     const enforceOnscreenKeyboard = options.enforceOnscreenKeyboard === true
     const displayDots = options.displayDots === undefined ? true : options.displayDots
 
-    passwordData.setValue = value => {
-      // TODO
+    function expandArray (requiredLength) {
+      if (requiredLength <= passwordData.value.byteLength)
+        return
+      let newLength = passwordData.value.byteLength
+      do {
+        newLength *= 2
+      } while (newLength < requiredLength)
+      const newValue = new Uint8Array(newLength)
+      for (let i = 0; i < passwordData.value.byteLength; i++) {
+        newValue[i] = passwordData.value[i]
+      }
       overwriteArray(passwordData.value)
-      passwordData.value = value
+      delete passwordData.value
+      passwordData.value = newValue
+    }
+
+    /**
+     * Set the value of this secure input to value.
+     *
+     * @param value
+     * @param overwriteValue Whether to securely erase the passed value.
+     */
+    passwordData.setValue = (value, overwriteValue = true) => {
+      expandArray(value.byteLength)
+
+      overwriteArray(passwordData.value)
+      for (let i = 0; i < value.byteLength; i++) {
+        passwordData.value[i] = value[i]
+      }
+      passwordData.length = value.byteLength
       cursorPosition = passwordData.length - 1
       updateDotDisplay()
+
+      if (overwriteValue)
+        overwriteArray(value)
     }
 
     passwordData.clear = () => {
@@ -205,15 +234,9 @@
 
       if (ALLOWED_KEYS.indexOf(event.key) >= 0) {
         passwordData.length++
-        if (passwordData.length > passwordData.value.byteLength) {
-          const newValue = new Uint8Array(passwordData.value.byteLength * 2)
-          for (let i = 0; i < passwordData.value.byteLength; i++) {
-            newValue[i] = passwordData.value[i]
-          }
-          overwriteArray(passwordData.value)
-          delete passwordData.value
-          passwordData.value = newValue
-        }
+
+        expandArray(passwordData.length)
+
         // shift all characters right of the insert position one place to the right
         for (let i = passwordData.length; i > cursorPosition; i--) {
           passwordData.value[i] = passwordData.value[i - 1]
