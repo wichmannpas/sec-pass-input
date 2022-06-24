@@ -92,6 +92,18 @@
         overwriteArray(value)
     }
 
+    /**
+     * Get a copy of the value in an array of the proper length. The caller is
+     * responsible to securely erase this copy!
+     */
+    passwordData.getValueCopy = () => {
+      const value = new Uint8Array(passwordData.length)
+      for (let i = 0; i < passwordData.length; i++)
+        value[i] = passwordData.value[i]
+      return value
+    }
+    passwordData.overwriteValueCopy = value => overwriteArray(value)
+
     passwordData.clear = () => {
       overwriteArray(passwordData.value)
       passwordData.length = 0

@@ -1,8 +1,6 @@
 (function () {
   const passwordInput = document.getElementById('password-input')
-  const passwordData = window.createSecurePasswordInput(passwordInput)
   const saltInput = document.getElementById('salt-input')
-  const saltData = window.createSecurePasswordInput(saltInput)
 
   const keyDisplay = document.getElementById('key-display')
   const saltDisplay = document.getElementById('salt-display')
@@ -24,27 +22,32 @@
     return result
   }
 
-  const initialSalt = window.crypto.getRandomValues(new Uint8Array(16))
-  saltData.setValue(initialSalt)
+  function stringToByteArray (value) {
+    let result = new Uint8Array(value.length)
+    for (let i = 0; i < value.length; i++) {
+      result[i] = value.charCodeAt(i)
+    }
+    return result
+  }
+
+  saltInput.value = byteArrayToString(window.crypto.getRandomValues(new Uint8Array(16)))
 
   async function deriveKey () {
-    const password = passwordData.getValueCopy()
     const passwordKey = await window.crypto.subtle.importKey(
       'raw',
-      password,
+      stringToByteArray(passwordInput.value),
       'PBKDF2',
       false,
       ['deriveKey']
     )
 
-    passwordData.overwriteValueCopy(password)
-    passwordData.clear()
+    passwordInput.value = ''
+    // we cannot call a secure clear operation here!
 
-    const salt = saltData.getValueCopy()
     let key = await window.crypto.subtle.deriveKey(
       {
         'name': 'PBKDF2',
-        salt: salt,
+        salt: stringToByteArray(saltInput.value),
         'iterations': 100000,
         'hash': 'SHA-256'
       },
@@ -57,11 +60,13 @@
       ['encrypt', 'decrypt']
     )
     keyDisplay.innerText = bufferToBase64(await window.crypto.subtle.exportKey('raw', key))
-    saltDisplay.innerText = bufferToBase64(salt)
-    saltData.overwriteValueCopy(salt)
+    saltDisplay.innerText = btoa(saltInput.value)
   }
 
-  passwordInput.onenter = deriveKey
-  saltInput.onenter = deriveKey
+  passwordInput.onkeyup = event => {
+    if (event.key === 'Enter')
+      deriveKey()
+  }
+  saltInput.onkeyup = passwordInput.onkeyup
   document.getElementById('derive').onclick = deriveKey
 })();
