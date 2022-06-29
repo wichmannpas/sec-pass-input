@@ -121,7 +121,7 @@
 
     const cursor = document.createElement('span')
     cursor.classList.add('cursor')
-    cursor.innerText = 'l'
+    cursor.innerText = '|'
     inputDots.appendChild(cursor)
 
     // create on-screen keyboard
