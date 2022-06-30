@@ -79,4 +79,8 @@
       toggleDisplayButton.classList.add('btn-success')
     }
   }
+
+  if (window.location.search === '?nodisplay=1') {
+    toggleDisplayButton.onclick()
+  }
 })();
