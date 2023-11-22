@@ -288,6 +288,11 @@
           passwordData.value[i] = passwordData.value[i + shift]
         }
 
+        // clear all remaining characters in the array
+        for (let i = newLength; i < passwordData.value.byteLength; i++) {
+          passwordData.value[i] = 0
+        }
+
         passwordData.length = newLength
         if (event.ctrlKey) {
           cursorPosition = -1
@@ -312,6 +317,11 @@
             passwordData.value[i] = passwordData.value[i + 1]
           }
           passwordData.value[passwordData.length] = 0
+        }
+
+        // clear all remaining characters in the array
+        for (let i = passwordData.length; i < passwordData.value.byteLength; i++) {
+          passwordData.value[i] = 0
         }
       } else {
         console.error('Unhandled event/key:')
