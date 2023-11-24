@@ -236,6 +236,10 @@
       if (HANDLED_KEYS.indexOf(event.key) === -1) {
         return
       }
+      if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+        alert('Secure password input does not support pasting. Please type your password.')
+        return
+      }
       // ignore ctrl and alt keys, except if it is ctrl-arrow or ctrl-backspace
       if (
         (event.ctrlKey && !(event.key === 'ArrowLeft' || event.key === 'ArrowRight'
