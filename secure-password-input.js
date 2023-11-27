@@ -41,7 +41,7 @@
   ]
 
   function overwriteArray (array) {
-    for (let i = 0; i < array.byteLength; i++) {
+    for (let i = 0; i < array.length; i++) {
       array[i] = 0
     }
   }
@@ -56,14 +56,14 @@
     const displayDots = options.displayDots === undefined ? true : options.displayDots
 
     function expandArray (requiredLength) {
-      if (requiredLength <= passwordData.value.byteLength)
+      if (requiredLength <= passwordData.value.length)
         return
-      let newLength = passwordData.value.byteLength
+      let newLength = passwordData.value.length
       do {
         newLength *= 2
       } while (newLength < requiredLength)
       const newValue = new Uint8Array(newLength)
-      for (let i = 0; i < passwordData.value.byteLength; i++) {
+      for (let i = 0; i < passwordData.value.length; i++) {
         newValue[i] = passwordData.value[i]
       }
       overwriteArray(passwordData.value)
@@ -78,13 +78,13 @@
      * @param overwriteValue Whether to securely erase the passed value.
      */
     passwordData.setValue = (value, overwriteValue = true) => {
-      expandArray(value.byteLength)
+      expandArray(value.length)
 
       overwriteArray(passwordData.value)
-      for (let i = 0; i < value.byteLength; i++) {
+      for (let i = 0; i < value.length; i++) {
         passwordData.value[i] = value[i]
       }
-      passwordData.length = value.byteLength
+      passwordData.length = value.length
       cursorPosition = passwordData.length - 1
       updateDotDisplay()
 
@@ -293,7 +293,7 @@
         }
 
         // clear all remaining characters in the array
-        for (let i = newLength; i < passwordData.value.byteLength; i++) {
+        for (let i = newLength; i < passwordData.value.length; i++) {
           passwordData.value[i] = 0
         }
 
@@ -324,7 +324,7 @@
         }
 
         // clear all remaining characters in the array
-        for (let i = passwordData.length; i < passwordData.value.byteLength; i++) {
+        for (let i = passwordData.length; i < passwordData.value.length; i++) {
           passwordData.value[i] = 0
         }
       } else {
